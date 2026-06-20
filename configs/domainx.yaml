@@ -1,0 +1,91 @@
+run:
+  seed: 7
+  output_dir: outputs
+  stage_timeout_s: 900
+
+project:
+  name: domainx
+  base_model: meta-llama/Llama-3.1-8B-Instruct
+  local_model: tiny-2l-64d
+
+data:
+  raw_docs: 1200
+  sft_pairs: 800
+  preference_pairs: 600
+  minhash: {ngram: 5, num_hashes: 64, bands: 16, rows: 4, threshold: 0.5}
+  quality: {min_tokens: 12, min_words: 8, max_symbol_ratio: 0.15, classifier_threshold: 0.5}
+  pii: {entities: [EMAIL, PHONE, CREDIT_CARD, SSN, IPV4, PERSON]}
+  split: {val_fraction: 0.1}
+  contamination: {threshold: 0.5, exact_ngram: 8}
+
+model:
+  d_model: 64
+  n_layers: 2
+  n_heads: 4
+  d_ff: 128
+  max_seq_len: 128
+  tie_embeddings: true
+  dropout: 0.0
+
+pretrain:
+  max_steps: 350
+  batch_size: 8
+  sequence_len: 64
+  learning_rate: 0.003
+  warmup_ratio: 0.05
+  weight_decay: 0.1
+  grad_clip: 1.0
+
+sft:
+  epochs: 3
+  max_steps: 300
+  batch_size: 8
+  sequence_len: 96
+  learning_rate: 0.001
+  warmup_ratio: 0.05
+  sample_packing: true
+  lora: {enabled: true, rank: 8, alpha: 16, max_steps: 200, learning_rate: 0.002}
+
+dpo:
+  epochs: 1
+  max_steps_per_beta: 80
+  beta_grid: [0.05, 0.1, 0.2]
+  batch_size: 4
+  learning_rate: 0.0005
+  loss_type: sigmoid
+
+grpo:
+  max_steps: 60
+  num_generations: 4
+  batch_prompts: 4
+  learning_rate: 0.0002
+  temperature: 0.9
+  top_k: 20
+  kl_coef: 0.02
+  reward: {exact: 1.0, format: 0.5, category: 0.25}
+
+quant:
+  calibration_samples: 64
+  gptq: {group_size: 32, damp_percent: 0.01, act_order: true}
+  awq: {group_size: 32, alpha_grid: [0.0, 0.5, 1.0]}
+  gguf: {embedding_dtype: F16, head_dtype: Q6_K}
+
+serve:
+  max_new_tokens: 16
+  draft_tokens: 4
+  speculative: true
+  guard: true
+  max_batch: 8
+  batch_window_ms: 5
+  batch_sizes: [1, 8, 32]
+  requests_per_batch: 12
+  gpu_hourly_usd: 3.99
+  comparison_models:
+    - {provider: OpenAI, model: gpt-5.4-mini, input_usd_per_mtok: 0.75, output_usd_per_mtok: 4.50, source: "https://developers.openai.com/api/docs/pricing"}
+    - {provider: Anthropic, model: claude-haiku-4.5, input_usd_per_mtok: 1.00, output_usd_per_mtok: 5.00, source: "https://platform.claude.com/docs/en/about-claude/pricing"}
+
+eval: {task_items: 60, mmlu_items: 30, mt_bench_items: 12, rewardbench_items: 24, judge: deterministic-rubric}
+
+safety: {guard_threshold: 0.5, shield_threshold: 0.5, guard_model: meta-llama/Llama-Guard-4-12B, shield_model: google/shieldgemma-2b}
+
+card: {mof_version: "1.0", code_license: MIT, data_license: CC0-1.0, weights_license: CDLA-Permissive-2.0}

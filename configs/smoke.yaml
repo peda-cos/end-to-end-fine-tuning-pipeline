@@ -1,0 +1,89 @@
+run:
+  seed: 7
+  output_dir: outputs/smoke
+  stage_timeout_s: 300
+
+project:
+  name: smoke
+  base_model: meta-llama/Llama-3.1-8B-Instruct
+  local_model: tiny-smoke
+
+data:
+  raw_docs: 30
+  sft_pairs: 16
+  preference_pairs: 12
+  minhash: {ngram: 3, num_hashes: 16, bands: 4, rows: 4, threshold: 0.5}
+  quality: {min_tokens: 6, min_words: 4, max_symbol_ratio: 0.2, classifier_threshold: 0.45}
+  split: {val_fraction: 0.2}
+  contamination: {threshold: 0.5, exact_ngram: 5}
+
+model:
+  d_model: 32
+  n_layers: 1
+  n_heads: 4
+  d_ff: 64
+  max_seq_len: 64
+  tie_embeddings: true
+
+pretrain:
+  max_steps: 2
+  batch_size: 4
+  sequence_len: 32
+  learning_rate: 0.003
+  warmup_ratio: 0.1
+  weight_decay: 0.1
+  grad_clip: 1.0
+
+sft:
+  epochs: 1
+  max_steps: 2
+  batch_size: 4
+  sequence_len: 48
+  learning_rate: 0.001
+  warmup_ratio: 0.1
+  sample_packing: true
+  lora: {enabled: true, rank: 4, alpha: 8, max_steps: 2, learning_rate: 0.002}
+
+dpo:
+  epochs: 1
+  max_steps_per_beta: 2
+  beta_grid: [0.1]
+  batch_size: 2
+  learning_rate: 0.0005
+  loss_type: sigmoid
+
+grpo:
+  max_steps: 2
+  num_generations: 2
+  batch_prompts: 2
+  learning_rate: 0.0002
+  temperature: 0.9
+  top_k: 10
+  kl_coef: 0.02
+  reward: {exact: 1.0, format: 0.5, category: 0.25}
+
+quant:
+  calibration_samples: 4
+  gptq: {group_size: 8, damp_percent: 0.01, act_order: true}
+  awq: {group_size: 8, alpha_grid: [0.0, 1.0]}
+  gguf: {embedding_dtype: F16, head_dtype: Q6_K}
+
+serve:
+  max_new_tokens: 4
+  draft_tokens: 2
+  speculative: true
+  guard: true
+  max_batch: 4
+  batch_window_ms: 1
+  batch_sizes: [1, 2]
+  requests_per_batch: 2
+  gpu_hourly_usd: 3.99
+  comparison_models:
+    - {provider: OpenAI, model: gpt-5.4-mini, input_usd_per_mtok: 0.75, output_usd_per_mtok: 4.50, source: "https://developers.openai.com/api/docs/pricing"}
+    - {provider: Anthropic, model: claude-haiku-4.5, input_usd_per_mtok: 1.00, output_usd_per_mtok: 5.00, source: "https://platform.claude.com/docs/en/about-claude/pricing"}
+
+eval: {task_items: 4, mmlu_items: 4, mt_bench_items: 2, rewardbench_items: 4, judge: deterministic-rubric}
+
+safety: {guard_threshold: 0.5, shield_threshold: 0.5, guard_model: meta-llama/Llama-Guard-4-12B, shield_model: google/shieldgemma-2b}
+
+card: {mof_version: "1.0", code_license: MIT, data_license: CC0-1.0, weights_license: CDLA-Permissive-2.0}
