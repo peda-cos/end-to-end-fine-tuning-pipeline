@@ -46,6 +46,8 @@ def rule_rejection(text: str, cfg: Any) -> str | None:
         return "too_short"
     if symbol_ratio(text) > float(q["max_symbol_ratio"]):
         return "symbol_heavy"
+    if word_count(text) < int(q["min_words"]):
+        return "too_few_words"
     if duplicate_line_ratio(text) > 0.3:
         return "duplicate_lines"
     if not 3.0 <= mean_word_length(text) <= 10.0:

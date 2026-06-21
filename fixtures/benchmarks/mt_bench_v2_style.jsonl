@@ -1,0 +1,12 @@
+{"id": "mtb-01", "reference": "Refunds are processed within 30 days of approval.", "turns": ["How do I request a refund for order 4812?", "How long does the refund take?"]}
+{"id": "mtb-02", "reference": "Standard shipping takes 5 days; ask support to check the courier.", "turns": ["My package for order 4820 has not arrived.", "What should I do if tracking stops updating?"]}
+{"id": "mtb-03", "reference": "A password reset link expires in 15 minutes.", "turns": ["I forgot my password and cannot sign in.", "How long is the reset link valid?"]}
+{"id": "mtb-04", "reference": "Free shipping starts at 50 dollars.", "turns": ["What is the free shipping minimum?", "Does it apply to large orders?"]}
+{"id": "mtb-05", "reference": "Support is available from 9 to 5.", "turns": ["When is support available?", "Can I get help outside those hours?"]}
+{"id": "mtb-06", "reference": "A warranty lasts 12 months and covers manufacturing faults.", "turns": ["How long is the warranty?", "What does it cover?"]}
+{"id": "mtb-07", "reference": "A return label is emailed within 1 day.", "turns": ["When will I get a return label?", "Can I return an item without one?"]}
+{"id": "mtb-08", "reference": "An unresolved ticket escalates after 2 days.", "turns": ["My ticket has been open for days.", "When does it escalate?"]}
+{"id": "mtb-09", "reference": "We accept card and bank transfer.", "turns": ["Which payment methods do you accept?", "Can I pay by bank transfer?"]}
+{"id": "mtb-10", "reference": "Tracking updates every 6 hours.", "turns": ["How often does tracking update?", "Why is my parcel delayed?"]}
+{"id": "mtb-11", "reference": "Check the invoice and order number, then contact billing.", "turns": ["I was charged twice for order 4833.", "How do I prove the duplicate?"]}
+{"id": "mtb-12", "reference": "Change the address before shipping; after that contact the courier.", "turns": ["I need to change my delivery address.", "Can I do it after shipping?"]}
