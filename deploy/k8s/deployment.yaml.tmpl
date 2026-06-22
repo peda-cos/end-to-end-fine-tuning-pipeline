@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftpipe-vllm
+  labels:
+    app: ftpipe-vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ftpipe-vllm
+  template:
+    metadata:
+      labels:
+        app: ftpipe-vllm
+    spec:
+      containers:
+        - name: vllm
+          image: {{VLLM_IMAGE}}
+          args:
+            - "--model"
+            - "{{MODEL_PATH}}"
+            - "--speculative-config"
+            - '{"method":"eagle3","model":"{{SPECULATOR}}","num_speculative_tokens":4}'
+            - "--port"
+            - "8000"
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: HF_HOME
+              value: /models/hf
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          volumeMounts:
+            - name: model-cache
+              mountPath: /models
+      volumes:
+        - name: model-cache
+          emptyDir: {}

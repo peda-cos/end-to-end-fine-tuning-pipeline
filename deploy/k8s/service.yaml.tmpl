@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftpipe-vllm
+  labels:
+    app: ftpipe-vllm
+spec:
+  selector:
+    app: ftpipe-vllm
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
