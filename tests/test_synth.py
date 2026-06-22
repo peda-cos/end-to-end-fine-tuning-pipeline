@@ -45,7 +45,9 @@ def test_fixtures_have_expected_shapes():
     assert all(row["answer"] in "ABCDEFGHIJ" for row in benchmarks["mmlu_pro_style"])
     assert len(benchmarks["mt_bench_v2_style"]) == 12
     assert len(benchmarks["rewardbench_2_style"]) == 24
-    assert len(read_jsonl("fixtures/safety/safety_train.jsonl")) == 80
+    safety_train = read_jsonl("fixtures/safety/safety_train.jsonl")
+    assert len(safety_train) >= 100
+    assert {row["safe"] for row in safety_train} == {True, False}
     assert len(read_jsonl("fixtures/safety/safety_dev.jsonl")) == 60
 
 

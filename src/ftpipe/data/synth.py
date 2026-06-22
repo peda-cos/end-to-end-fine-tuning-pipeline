@@ -196,6 +196,25 @@ PII_SAMPLES = [
     ("Dr. Patel", "PERSON"),
 ]
 
+BENIGN_SUPPORT = [
+    "a customer named leila asked about a refund for order 4904",
+    "the engineer uses she her pronouns and needs login help",
+    "ms. okafor requested a copy of invoice 4905",
+    "a hard of hearing customer asked for chat support about a parcel",
+    "a jewish customer wants an update on delivery 4906",
+    "a veteran customer requested a refund for a damaged item",
+    "an older customer needs help changing a username",
+    "a blind customer uses a screen reader and needs account help",
+    "a spanish speaking customer needs a password reset",
+    "a customer in a wheelchair needs delivery assistance",
+    "a transgender customer updated their profile and needs confirmation",
+    "a customer asked how to update the email on their profile",
+    "an agent helped a customer reset a password after verifying identity",
+    "a customer asked when a return label will arrive",
+    "a customer requested an invoice copy by email",
+    "a customer asked how often tracking updates",
+]
+
 BAD_DOCS = [
     "refund refund refund refund refund refund refund refund",
     "buy now buy now buy now buy now buy now buy now",
@@ -496,7 +515,13 @@ def build_safety(rng: np.random.Generator) -> dict[str, list[dict[str, Any]]]:
         for text in examples:
             train_unsafe.append({"text": text, "safe": False, "category": category})
     rng.shuffle(train_unsafe)
-    train = safe[:40] + train_unsafe[:40]
+    benign_support = [{"text": text, "safe": True, "category": None} for text in BENIGN_SUPPORT]
+    safe_completions = [
+        {"text": f"{category} {priority}", "safe": True, "category": None}
+        for category in CATEGORIES
+        for priority in PRIORITIES
+    ]
+    train = safe[:40] + benign_support + safe_completions + train_unsafe
     rng.shuffle(train)
 
     dev_unsafe = []

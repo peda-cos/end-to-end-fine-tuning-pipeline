@@ -95,9 +95,11 @@ DROP_FOR_DETERMINISM = {
     "output_tokens_per_second",
     "spec_output_tokens_per_second",
     "cost_model",
+    "self_hosted_usd_per_1m_output_tokens",
     "timestamp_ms",
     "created",
     "train_seconds",
+    "elapsed_seconds",
 }
 
 

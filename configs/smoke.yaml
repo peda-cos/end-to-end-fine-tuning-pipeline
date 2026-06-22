@@ -1,7 +1,6 @@
 run:
   seed: 7
   output_dir: outputs/smoke
-  stage_timeout_s: 300
 
 project:
   name: smoke
@@ -49,7 +48,7 @@ dpo:
   max_steps_per_beta: 2
   beta_grid: [0.1]
   batch_size: 2
-  learning_rate: 0.0005
+  learning_rate: 0.00002
   loss_type: sigmoid
 
 grpo:
@@ -71,6 +70,7 @@ quant:
 serve:
   max_new_tokens: 4
   draft_tokens: 2
+  draft_train_steps: 20
   speculative: true
   guard: true
   max_batch: 4
@@ -80,7 +80,7 @@ serve:
   gpu_hourly_usd: 3.99
   comparison_models:
     - {provider: OpenAI, model: gpt-5.4-mini, input_usd_per_mtok: 0.75, output_usd_per_mtok: 4.50, source: "https://developers.openai.com/api/docs/pricing"}
-    - {provider: Anthropic, model: claude-haiku-4.5, input_usd_per_mtok: 1.00, output_usd_per_mtok: 5.00, source: "https://platform.claude.com/docs/en/about-claude/pricing"}
+    - {provider: Anthropic, model: claude-haiku-5.5, input_usd_per_mtok: 0.10, output_usd_per_mtok: 0.50, source: "https://platform.claude.com/docs/en/about-claude/pricing"}
 
 eval: {task_items: 4, mmlu_items: 4, mt_bench_items: 2, rewardbench_items: 4, judge: deterministic-rubric}
 

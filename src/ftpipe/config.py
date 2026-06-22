@@ -18,7 +18,7 @@ class ConfigError(ValueError):
 
 
 DEFAULTS: dict[str, Any] = {
-    "run": {"seed": 7, "output_dir": "outputs", "stage_timeout_s": 900},
+    "run": {"seed": 7, "output_dir": "outputs"},
     "project": {
         "name": "domainx",
         "base_model": "meta-llama/Llama-3.1-8B-Instruct",
@@ -46,7 +46,6 @@ DEFAULTS: dict[str, Any] = {
         "d_ff": 128,
         "max_seq_len": 128,
         "tie_embeddings": True,
-        "dropout": 0.0,
     },
     "pretrain": {
         "max_steps": 350,
@@ -78,7 +77,7 @@ DEFAULTS: dict[str, Any] = {
         "max_steps_per_beta": 80,
         "beta_grid": [0.05, 0.1, 0.2],
         "batch_size": 4,
-        "learning_rate": 0.0005,
+        "learning_rate": 0.00002,
         "loss_type": "sigmoid",
     },
     "grpo": {
@@ -100,6 +99,7 @@ DEFAULTS: dict[str, Any] = {
     "serve": {
         "max_new_tokens": 16,
         "draft_tokens": 4,
+        "draft_train_steps": 100,
         "speculative": True,
         "guard": True,
         "max_batch": 8,
@@ -117,9 +117,9 @@ DEFAULTS: dict[str, Any] = {
             },
             {
                 "provider": "Anthropic",
-                "model": "claude-haiku-4.5",
-                "input_usd_per_mtok": 1.0,
-                "output_usd_per_mtok": 5.0,
+                "model": "claude-haiku-5.5",
+                "input_usd_per_mtok": 0.10,
+                "output_usd_per_mtok": 0.50,
                 "source": "https://platform.claude.com/docs/en/about-claude/pricing",
             },
         ],
@@ -156,7 +156,6 @@ def _schema() -> dict[str, Any]:
         "run": {
             "seed": int,
             "output_dir": str,
-            "stage_timeout_s": int,
         },
         "project": {"name": str, "base_model": str, "local_model": str},
         "data": {
@@ -187,7 +186,6 @@ def _schema() -> dict[str, Any]:
             "d_ff": int,
             "max_seq_len": int,
             "tie_embeddings": bool,
-            "dropout": float,
         },
         "pretrain": {
             "max_steps": int,
@@ -241,6 +239,7 @@ def _schema() -> dict[str, Any]:
         "serve": {
             "max_new_tokens": int,
             "draft_tokens": int,
+            "draft_train_steps": int,
             "speculative": bool,
             "guard": bool,
             "max_batch": int,
@@ -360,7 +359,6 @@ def _check_ranges(cfg: dict[str, Any]) -> None:
     _require(model["d_model"] > 0 and model["d_ff"] > 0, "model: dimensions must be > 0")
     _require(model["d_model"] % model["n_heads"] == 0, "model.d_model must be divisible by model.n_heads")
     _require(model["n_layers"] >= 1 and model["n_heads"] >= 1, "model: layers/heads must be >= 1")
-    _require(0.0 <= model["dropout"] < 1.0, "model.dropout: must be in [0, 1)")
     _require(model["max_seq_len"] >= 8, "model.max_seq_len: must be >= 8")
 
     for section in ("pretrain", "sft"):
@@ -410,6 +408,7 @@ def _check_ranges(cfg: dict[str, Any]) -> None:
     serve = cfg["serve"]
     _require(serve["max_new_tokens"] > 0, "serve.max_new_tokens: must be > 0")
     _require(serve["draft_tokens"] > 0, "serve.draft_tokens: must be > 0")
+    _require(serve["draft_train_steps"] > 0, "serve.draft_train_steps: must be > 0")
     _require(serve["max_batch"] > 0, "serve.max_batch: must be > 0")
     _require(serve["batch_window_ms"] >= 0, "serve.batch_window_ms: must be >= 0")
     _require(bool(serve["batch_sizes"]) and all(b > 0 for b in serve["batch_sizes"]), "serve.batch_sizes: must be positive")
