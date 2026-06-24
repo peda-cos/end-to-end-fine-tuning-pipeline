@@ -11,6 +11,7 @@ export PYTHONHASHSEED=0
 uv sync --frozen --group dev
 uv run --frozen python -m compileall -q src tests
 uv run --frozen python -m pytest -q
+uv run --frozen python -m ftpipe check-contamination configs/smoke.yaml --out .verify/contamination
 
 bun install --frozen-lockfile
 bun test dashboard
